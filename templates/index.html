@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Kanji Recognition</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 20px;
+        }
+        .sidebar {
+            width: 300px;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .sidebar h5 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .sidebar table td:first-child,
+        .sidebar table th:first-child {
+            font-size: 5rem;
+        }
+        .sidebar table td:nth-child(2),
+        .sidebar table th:nth-child(2) {
+            font-size: 1.25rem; /* Ajusta según convenga */
+        }
+        .main-content {
+            flex: 1;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 10px;
+            text-align: center;
+        }
+        #canvas {
+            border: 1px solid #ced4da;
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+        }
+        .button-group {
+            margin-top: 15px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 2rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <h1>Reconocedor de Kanji</h1>
+        <p>¡Dibuja un Kanji y deja que nuestro modelo lo reconozca!</p>
+        <!-- Canvas para el dibujo -->
+        <canvas id="canvas" width="400" height="400"></canvas>
+        <div class="button-group">
+            <button id="clearBtn" class="btn btn-secondary mt-2">Limpiar</button>
+            <button id="predictBtn" class="btn btn-primary mt-2">Enviar</button>
+        </div>
+        <div id="result">Aquí se mostrará el resultado</div>
+    </div>
+
+    <!-- Sidebar Derecho -->
+    <div class="sidebar right">
+        <h5>Referencia</h5>
+        <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+                <th style="font-size: 1.25rem">Kanji</th>
+                <th>Significado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr><td>一</td><td>Uno</td></tr>
+            <tr><td>事</td><td>Cosa / Asunto</td></tr>
+            <tr><td>云</td><td>Nube</td></tr>
+            <tr><td>人</td><td>Persona</td></tr>
+            <tr><td>出</td><td>Salir / Fuera</td></tr>
+            <tr><td>又</td><td>De nuevo / Otra vez</td></tr>
+            <tr><td>見</td><td>Ver / Mirar</td></tr>
+            <tr><td>入</td><td>Entrar / Dentro</td></tr>
+            <tr><td>大</td><td>Grande</td></tr>
+            <tr><td>物</td><td>Objeto / Cosa</td></tr>
+            <tr><td>子</td><td>Niño / Hijo</td></tr>
+            <tr><td>此</td><td>Esto / Este</td></tr>
+            <tr><td>其</td><td>Su / Aquel</td></tr>
+            <tr><td>也</td><td>También</td></tr>
+            <tr><td>日</td><td>Día / Sol</td></tr>
+            <tr><td>小</td><td>Pequeño</td></tr>
+            <tr><td>方</td><td>Dirección / Manera</td></tr>
+            <tr><td>上</td><td>Arriba / Encima</td></tr>
+            <tr><td>是</td><td>Ser / Es</td></tr>
+            <tr><td>三</td><td>Tres</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bootstrap JS (opcional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    // Función para inicializar el canvas con fondo blanco
+    function initCanvas() {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Al cargar la página, inicializa el canvas y fija el grosor de la brocha a 30.
+    window.onload = function() {
+        initCanvas();
+        ctx.lineWidth = 30;
+    };
+
+    function startPosition(e) {
+        drawing = true;
+        draw(e);
+    }
+
+    function finishedPosition() {
+        drawing = false;
+        ctx.beginPath();
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000000';
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    canvas.addEventListener('mousedown', startPosition);
+    canvas.addEventListener('mouseup', finishedPosition);
+    canvas.addEventListener('mousemove', draw);
+
+    // Botón para limpiar el canvas y rellenarlo de blanco
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        initCanvas();
+        document.getElementById('result').textContent = 'Aquí se mostrará el resultado';
+    });
+
+    // Botón para enviar la imagen al backend
+    document.getElementById('predictBtn').addEventListener('click', function() {
+        const dataURL = canvas.toDataURL('image/png');
+        fetch('/predict/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                'image': dataURL
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('result').textContent = 'Predicción: ' + data.prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'Error en la predicción.';
+            });
+    });
+</script>
+</body>
+</html>
