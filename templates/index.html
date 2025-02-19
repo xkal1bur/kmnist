@@ -49,7 +49,7 @@
             margin: 10px;
             text-align: center;
         }
-        #canvas {
+        #drawCanvas, #cameraCanvas {
             border: 1px solid #ced4da;
             display: block;
             margin: 0 auto;
@@ -67,12 +67,26 @@
 </head>
 <body>
 <div class="wrapper">
-    <!-- Contenido Principal -->
     <div class="main-content">
         <h1>Reconocedor de Kanji</h1>
-        <p>¡Dibuja un Kanji y deja que nuestro modelo lo reconozca!</p>
+        <p>¡Dibuja un Kanji o toma una foto y nuestro modelo lo reconocerá!</p>
+
+        <!-- Selector de Modo -->
+        <div class="btn-group mb-3">
+            <button id="drawModeBtn" class="btn btn-primary">Modo Dibujo</button>
+            <button id="cameraModeBtn" class="btn btn-secondary">Modo Cámara</button>
+        </div>
+
         <!-- Canvas para el dibujo -->
-        <canvas id="canvas" width="400" height="400"></canvas>
+        <canvas id="drawCanvas" width="400" height="400" style="display:none;"></canvas>
+
+        <!-- Contenedor de la Cámara -->
+        <div id="cameraContainer" style="display:none;">
+            <video id="video" width="400" height="400" autoplay></video>
+            <canvas id="cameraCanvas" width="400" height="400" style="display:none;"></canvas>
+            <button id="captureBtn" class="btn btn-success mt-2">Tomar Foto</button>
+        </div>
+
         <div class="button-group">
             <button id="clearBtn" class="btn btn-secondary mt-2">Limpiar</button>
             <button id="predictBtn" class="btn btn-primary mt-2">Enviar</button>
@@ -119,14 +133,21 @@
 <!-- Bootstrap JS (opcional) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    // Canvas y variables
+    const drawCanvas = document.getElementById('drawCanvas');
+    const cameraCanvas = document.getElementById('cameraCanvas');
+    const video = document.getElementById('video');
+    const ctx = drawCanvas.getContext('2d');
+    const cameraCtx = cameraCanvas.getContext('2d');
+    let currentMode = 'draw';
+    let isCaptured = false;
     let drawing = false;
 
-    // Función para inicializar el canvas con fondo blanco
+    // Inicialización
     function initCanvas() {
         ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+        cameraCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
     }
 
     // Al cargar la página, inicializa el canvas y fija el grosor de la brocha a 30.
@@ -137,6 +158,7 @@
 
     function startPosition(e) {
         drawing = true;
+        ctx.beginPath();
         draw(e);
     }
 
@@ -147,7 +169,7 @@
 
     function draw(e) {
         if (!drawing) return;
-        const rect = canvas.getBoundingClientRect();
+        const rect = drawCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         ctx.lineCap = 'round';
@@ -158,38 +180,148 @@
         ctx.moveTo(x, y);
     }
 
-    canvas.addEventListener('mousedown', startPosition);
-    canvas.addEventListener('mouseup', finishedPosition);
-    canvas.addEventListener('mousemove', draw);
+    drawCanvas.addEventListener('mousedown', startPosition);
+    drawCanvas.addEventListener('mouseup', finishedPosition);
+    drawCanvas.addEventListener('mousemove', draw);
 
     // Botón para limpiar el canvas y rellenarlo de blanco
     document.getElementById('clearBtn').addEventListener('click', () => {
         initCanvas();
+        if (currentMode === 'camera') {
+            video.style.display = 'block';
+            cameraCanvas.style.display = 'none';
+            isCaptured = false;
+        }
         document.getElementById('result').textContent = 'Aquí se mostrará el resultado';
     });
 
-    // Botón para enviar la imagen al backend
-    document.getElementById('predictBtn').addEventListener('click', function() {
-        const dataURL = canvas.toDataURL('image/png');
-        fetch('/predict/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-                'image': dataURL
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                document.getElementById('result').textContent = 'Predicción: ' + data.prediction;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').textContent = 'Error en la predicción.';
-            });
+    // Asegurar que solo un canvas está activo
+    document.getElementById('cameraModeBtn').addEventListener('click', () => {
+        currentMode = 'camera';
+        drawCanvas.style.display = 'none';
+        cameraContainer.style.display = 'block';
+        video.style.display = 'block';
+        cameraCanvas.style.display = 'none';
+        isCaptured = false;
+
+        // Limpiar canvas al cambiar de modo
+        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        initCanvas();
+        startCamera();
     });
+
+    // Cámara
+    async function startCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment" }
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            console.error("Error al acceder a la cámara:", err);
+            alert("No se pudo acceder a la cámara");
+        }
+    }
+
+    function stopCamera() {
+        const stream = video.srcObject;
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    function applyContrast(imageData) {
+        const data = imageData.data;
+        const contrast = 2; // Aumentar contraste
+        const brightness = -20; // Ajustar brillo
+
+        for (let i = 0; i < data.length; i += 4) {
+            // Aplicar contraste
+            data[i] = ((data[i] / 255 - 0.5) * contrast + 0.5) * 255 + brightness;
+            data[i+1] = ((data[i+1] / 255 - 0.5) * contrast + 0.5) * 255 + brightness;
+            data[i+2] = ((data[i+2] / 255 - 0.5) * contrast + 0.5) * 255 + brightness;
+
+            // Asegurar valores dentro del rango 0-255
+            data[i] = Math.min(255, Math.max(0, data[i]));
+            data[i+1] = Math.min(255, Math.max(0, data[i+1]));
+            data[i+2] = Math.min(255, Math.max(0, data[i+2]));
+        }
+        return imageData;
+    }
+
+    // Capturar foto con filtros
+    document.getElementById('captureBtn').addEventListener('click', () => {
+        cameraCtx.drawImage(video, 0, 0, 400, 400);
+
+        // Aplicar filtros
+        const imageData = cameraCtx.getImageData(0, 0, 400, 400);
+        const processedData = applyContrast(imageData);
+        cameraCtx.putImageData(processedData, 0, 0);
+
+        isCaptured = true;
+        video.style.display = 'none';
+        cameraCanvas.style.display = 'block';
+    });
+
+    // Cambiar modos
+    document.getElementById('drawModeBtn').addEventListener('click', () => {
+        currentMode = 'draw';
+        drawCanvas.style.display = 'block';
+        cameraContainer.style.display = 'none';
+        stopCamera();
+        isCaptured = false;
+    });
+
+    document.getElementById('cameraModeBtn').addEventListener('click', () => {
+        currentMode = 'camera';
+        drawCanvas.style.display = 'none';
+        cameraContainer.style.display = 'block';
+        video.style.display = 'block';
+        cameraCanvas.style.display = 'none';
+        startCamera();
+        isCaptured = false;
+    });
+
+    // Enviar imagen
+    document.getElementById('predictBtn').addEventListener('click', handlePredictClick);
+    async function handlePredictClick(e) {
+        e.preventDefault(); // Prevenir comportamiento por defecto
+        console.log('Enviando imagen...'); // Depuración
+
+        let dataURL;
+        if (currentMode === 'draw') {
+            dataURL = drawCanvas.toDataURL('image/png');
+        } else {
+            if (!isCaptured) {
+                alert('Primero toma una foto!');
+                return;
+            }
+            dataURL = cameraCanvas.toDataURL('image/png');
+        }
+
+        try {
+            const response = await fetch('/predict/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ 'image': dataURL })
+            });
+            const data = await response.json();
+            document.getElementById('result').textContent = 'Predicción: ' + data.prediction;
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('result').textContent = 'Error en la predicción.';
+        }
+    }
+
+    // Inicialización
+    window.onload = function() {
+        initCanvas();
+        ctx.lineWidth = 30;
+        // Iniciar en modo dibujo
+        document.getElementById('drawModeBtn').click();
+    };
 </script>
 </body>
 </html>

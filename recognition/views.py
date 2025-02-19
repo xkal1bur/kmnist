@@ -5,8 +5,8 @@ from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, ImageOps
 
-#import os
-#import datetime
+import os
+import datetime
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -74,7 +74,6 @@ def predict(request):
             # invertir los colores
             image = ImageOps.invert(image)
 
-            """
             # Guarda la imagen para depuración
             output_dir = "saved_images"
             if not os.path.exists(output_dir):
@@ -83,7 +82,6 @@ def predict(request):
             filename = f"{timestamp}.png"
             file_path = os.path.join(output_dir, filename)
             image.save(file_path)
-            """
 
             # Define el pipeline de transformaciones
             transform = transforms.Compose([
