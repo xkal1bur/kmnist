@@ -58,10 +58,30 @@
         .button-group {
             margin-top: 15px;
         }
-        #result {
+        #result, #batchResult {
             margin-top: 20px;
             font-size: 2rem;
             color: #333;
+        }
+        #batchContainer {
+            display: none;
+        }
+        #batchPreview {
+            max-width: 400px;
+            margin: 10px auto;
+            display: block;
+            border: 1px solid #ced4da;
+        }
+        .kanji-segmentation {
+            display: inline-block;
+            margin: 5px;
+            text-align: center;
+        }
+        .kanji-segmentation img {
+            max-width: 100px;
+            border: 1px solid #ced4da;
+            display: block;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -75,6 +95,7 @@
         <div class="btn-group mb-3">
             <button id="drawModeBtn" class="btn btn-primary">Modo Dibujo</button>
             <button id="cameraModeBtn" class="btn btn-secondary">Modo Cámara</button>
+            <button id="batchModeBtn" class="btn btn-info">Modo Batch</button>
         </div>
 
         <!-- Canvas para el dibujo -->
@@ -86,7 +107,14 @@
             <canvas id="cameraCanvas" width="400" height="400" style="display:none;"></canvas>
             <button id="captureBtn" class="btn btn-success mt-2">Tomar Foto</button>
         </div>
-
+        
+        <!-- Contenedor para Batch Mode -->
+        <div id="batchContainer" style="display:none;">
+            <input type="file" id="batchFileInput" accept="image/*" class="form-control">
+            <img id="batchPreview" src="" alt="Vista previa de la imagen batch">
+            <button id="sendBatchBtn" class="btn btn-primary mt-2">Enviar Batch</button>
+        </div>
+        
         <div class="button-group">
             <button id="clearBtn" class="btn btn-secondary mt-2">Limpiar</button>
             <button id="predictBtn" class="btn btn-primary mt-2">Enviar</button>
@@ -318,7 +346,7 @@
     // Inicialización
     window.onload = function() {
         initCanvas();
-        ctx.lineWidth = 30;
+        ctx.lineWidth = 20;
         // Iniciar en modo dibujo
         document.getElementById('drawModeBtn').click();
     };
