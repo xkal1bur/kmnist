@@ -107,19 +107,21 @@
             <canvas id="cameraCanvas" width="400" height="400" style="display:none;"></canvas>
             <button id="captureBtn" class="btn btn-success mt-2">Tomar Foto</button>
         </div>
-        
+
         <!-- Contenedor para Batch Mode -->
         <div id="batchContainer" style="display:none;">
             <input type="file" id="batchFileInput" accept="image/*" class="form-control">
+            <input type="number" id="nClustersInput" placeholder="Número de clusters (por defecto 3)" class="form-control mt-2">
             <img id="batchPreview" src="" alt="Vista previa de la imagen batch">
             <button id="sendBatchBtn" class="btn btn-primary mt-2">Enviar Batch</button>
         </div>
-        
+
         <div class="button-group">
             <button id="clearBtn" class="btn btn-secondary mt-2">Limpiar</button>
             <button id="predictBtn" class="btn btn-primary mt-2">Enviar</button>
         </div>
         <div id="result">Aquí se mostrará el resultado</div>
+        <div id="batchResult"></div>
     </div>
 
     <!-- Sidebar Derecho -->
@@ -170,6 +172,13 @@
     let currentMode = 'draw';
     let isCaptured = false;
     let drawing = false;
+    const cameraContainer = document.getElementById('cameraContainer');
+
+    const batchResultDiv = document.getElementById('batchResult');
+    const sendBatchBtn = document.getElementById('sendBatchBtn');
+    const batchPreview = document.getElementById('batchPreview');
+    const batchFileInput = document.getElementById('batchFileInput');
+    const batchContainer = document.getElementById('batchContainer');
 
     // Inicialización
     function initCanvas() {
@@ -178,11 +187,6 @@
         cameraCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
     }
 
-    // Al cargar la página, inicializa el canvas y fija el grosor de la brocha a 30.
-    window.onload = function() {
-        initCanvas();
-        ctx.lineWidth = 30;
-    };
 
     function startPosition(e) {
         drawing = true;
@@ -219,6 +223,10 @@
             video.style.display = 'block';
             cameraCanvas.style.display = 'none';
             isCaptured = false;
+        }
+        if (currentMode === 'batch') {
+            batchPreview.src = "";
+            batchResultDiv.innerHTML = "";
         }
         document.getElementById('result').textContent = 'Aquí se mostrará el resultado';
     });
@@ -296,6 +304,7 @@
         currentMode = 'draw';
         drawCanvas.style.display = 'block';
         cameraContainer.style.display = 'none';
+        batchContainer.style.display = 'none';
         stopCamera();
         isCaptured = false;
     });
@@ -306,6 +315,7 @@
         cameraContainer.style.display = 'block';
         video.style.display = 'block';
         cameraCanvas.style.display = 'none';
+        batchContainer.style.display = 'none';
         startCamera();
         isCaptured = false;
     });
@@ -342,11 +352,66 @@
             document.getElementById('result').textContent = 'Error en la predicción.';
         }
     }
+    // Modo Batch
+    document.getElementById('batchModeBtn').addEventListener('click', () => {
+        currentMode = 'batch';
+        drawCanvas.style.display = 'none';
+        document.getElementById('cameraContainer').style.display = 'none';
+        batchContainer.style.display = 'block';
+        predictBtn.style.display = 'none';
+        stopCamera();
+    });
+    // Previsualizar imagen en modo Batch
+    batchFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            batchPreview.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Enviar imagen en modo Batch
+    sendBatchBtn.addEventListener('click', async () => {
+        if (!batchPreview.src) {
+            alert("Primero seleccione una imagen.");
+            return;
+        }
+        const nClusters = document.getElementById("nClustersInput").value;
+        try {
+            const params = new URLSearchParams({ 'image': batchPreview.src });
+            if (nClusters) {
+                params.append('n_clusters', nClusters);
+            }
+            const response = await fetch('/predict_batch/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            });
+            const data = await response.json();
+            console.log(data)
+            // Mostrar resultados: por ejemplo, una lista de los kanjis reconocidos
+            let html = '<h4>Predicciones Batch:</h4><div class="d-flex flex-wrap justify-content-center">';
+            data.predictions.forEach(pred => {
+                html += `<div class="kanji-segmentation m-2">
+                            <div style="font-size:2rem;">${pred.prediction}</div>
+                         </div>`;
+            });
+            html += '</div>';
+            batchResultDiv.innerHTML = html;
+        } catch (error) {
+            console.error('Error:', error);
+            batchResultDiv.textContent = 'Error en la predicción batch.';
+        }
+    });
 
     // Inicialización
     window.onload = function() {
         initCanvas();
-        ctx.lineWidth = 20;
+        ctx.lineWidth = 30;
         // Iniciar en modo dibujo
         document.getElementById('drawModeBtn').click();
     };
