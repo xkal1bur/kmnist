@@ -6,7 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, ImageOps
 import math
 import cv2
-from sklearn.cluster import KMeans
 import numpy as np
 
 # import os
@@ -106,6 +105,48 @@ def recortar_cuadrado_con_relleno(gray_img, cx, cy, side):
     dst_x:dst_x + (orig_x2 - orig_x1)] = subimg
     return output
 
+
+def custom_kmeans(points, n_clusters=3, max_iters=100, tol=1e-4):
+    """
+    Implementación nativa de K-Means
+    :param points: Array numpy de puntos (N, 2)
+    :param n_clusters: Número de clusters deseado
+    :param max_iters: Máximo de iteraciones
+    :param tol: Tolerancia para convergencia
+    :return: (labels, centroids)
+    """
+    # Ajustar si hay menos puntos que clusters
+    n_clusters = min(n_clusters, len(points))
+
+    # Inicialización aleatoria con semilla
+    np.random.seed(42)
+    initial_indices = np.random.choice(len(points), n_clusters, replace=False)
+    centroids = points[initial_indices].copy()
+
+    for _ in range(max_iters):
+        # Calcular distancias entre puntos y centroides
+        distances = np.sqrt(((points[:, np.newaxis] - centroids) ** 2).sum(axis=2))
+
+        # Asignar cada punto al cluster más cercano
+        labels = np.argmin(distances, axis=1)
+
+        # Actualizar centroides
+        new_centroids = np.zeros_like(centroids)
+        for i in range(n_clusters):
+            cluster_points = points[labels == i]
+            if len(cluster_points) > 0:
+                new_centroids[i] = cluster_points.mean(axis=0)
+            else:
+                new_centroids[i] = centroids[i]  # Mantener anterior si no hay puntos
+
+        # Verificar convergencia
+        if np.allclose(centroids, new_centroids, atol=tol):
+            break
+
+        centroids = new_centroids
+
+    return labels, centroids
+
 @csrf_exempt
 def predict_batch(request):
     """
@@ -161,9 +202,12 @@ def predict_batch(request):
             n_clusters = 3
 
         # Agrupar con K-Means
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        labels = kmeans.fit_predict(centroids)
-        cluster_centers = kmeans.cluster_centers_
+        # kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        # labels = kmeans.fit_predict(centroids)
+        # cluster_centers = kmeans.cluster_centers_
+        centroids_array = np.array(centroids)
+        labels, cluster_centers = custom_kmeans(centroids_array, n_clusters)
+
 
         # Agrupar cajas por cluster
         clusters = {}
