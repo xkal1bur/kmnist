@@ -41,7 +41,7 @@ class Net(nn.Module):
 
 # Carga del modelo y pesos (se hace una sola vez)
 model = Net()
-model.load_state_dict(torch.load('recognition/modelo_kanji_1500000_completo_40.pth'))
+model.load_state_dict(torch.load('recognition/modelo_kanji_1500000_completo_40.pth', map_location=torch.device('cpu')))
 model.eval()
 
 # Diccionario de mapeo de índices a símbolos Kanji
