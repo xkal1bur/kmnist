@@ -4,4 +4,4 @@ torch==2.5.1          # PyTorch (modelo de red neuronal)
 torchvision==0.20.1    # Transformaciones de imágenes (transforms.Compose)
 gunicorn==23.0.0       # Servidor web para produccióngs
 numpy==1.26.4          # Operaciones matemáticas
-opencv-python==4.11.0 # OpenCV (cv2)
+opencv-python==4.11.0.86 # OpenCV (cv2)
