@@ -41,11 +41,11 @@ class Net(nn.Module):
 
 # Carga del modelo y pesos (se hace una sola vez)
 model = Net()
-model.load_state_dict(torch.load('modelo_kanji_1500000_completo_40.pth'))
+model.load_state_dict(torch.load('recognition/modelo_kanji_1500000_completo_40.pth'))
 model.eval()
 
 # Diccionario de mapeo de índices a símbolos Kanji
-array_k = np.load('unicodes_kanji.npy')
+array_k = np.load('recognition/unicodes_kanji.npy')
 def transform(karray):
     karray2 = np.array([int(s.replace('U+', ''), 16) for s in karray])
     karray3 = np.vectorize(chr)(karray2)
