@@ -13,7 +13,7 @@ import os
 import datetime
 import torchvision.transforms as transforms
 from django.shortcuts import render
-from .models import model, device, label_map
+from .models import model, label_map
 import torch
 
 def index(request):
@@ -66,7 +66,7 @@ def predict(request):
 
         # Ejecuta la inferencia
         with torch.no_grad():
-            output = model(tensor_image.to(device))
+            output = model(tensor_image)
             pred = output.data.max(1)[1].item()
 
         predicted_kanji = label_map.get(pred, "Desconocido")
@@ -223,7 +223,7 @@ def predict_batch(request):
             pil_img = Image.fromarray(recorte)  # Convertir a PIL para las transformaciones
             tensor_img = transform_pipeline(pil_img).unsqueeze(0)  # [1, 1, 64, 64]
             with torch.no_grad():
-                output = model(tensor_img.to(device))
+                output = model(tensor_img)
                 pred = output.data.max(1)[1].item()
             predicted_kanji = label_map.get(pred, "Desconocido")
             predictions.append({

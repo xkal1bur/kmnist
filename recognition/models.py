@@ -40,9 +40,8 @@ class Net(nn.Module):
         return x
 
 # Carga del modelo y pesos (se hace una sola vez)
-device = "gpu"
-model = Net().to(device)
-model.load_state_dict(torch.load('recognition/modelo_kanji_3000_completo_150.pth', map_location=device, weights_only=False))
+model = Net()
+model.load_state_dict(torch.load('recognition/modelo_kanji_3000_completo_150.pth', weights_only=False))
 model.eval()
 
 # Diccionario de mapeo de índices a símbolos Kanji
