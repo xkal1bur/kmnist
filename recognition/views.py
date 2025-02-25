@@ -9,8 +9,8 @@ import cv2
 from sklearn.cluster import KMeans
 import numpy as np
 
-import os
-import datetime
+# import os
+# import datetime
 import torchvision.transforms as transforms
 from django.shortcuts import render
 from .models import model, label_map
