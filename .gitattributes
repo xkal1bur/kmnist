@@ -1,1 +1,2 @@
 *.pth filter=lfs diff=lfs merge=lfs -text
+recognition/modelo_kanji_3000_completo_150.pth filter=lfs diff=lfs merge=lfs -text
