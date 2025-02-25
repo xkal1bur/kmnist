@@ -17,8 +17,8 @@ class Net(nn.Module):
         self.pool3 = nn.MaxPool2d(2, 2)
         self.drop1 = nn.Dropout2d(p=0.25)
         self.drop2 = nn.Dropout(p=0.5)
-        self.fc1 = nn.Linear(128*6*6, 4000)
-        self.fc2 = nn.Linear(4000, 3490)
+        self.fc1 = nn.Linear(4608, 2048)
+        self.fc2 = nn.Linear(2048, 3490)
 
     def forward(self, x):
         x = self.conv1(x)
