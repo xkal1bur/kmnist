@@ -40,7 +40,7 @@ class Net(nn.Module):
         return x
 
 # Carga del modelo y pesos (se hace una sola vez)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "gpu"
 model = Net().to(device)
 model.load_state_dict(torch.load('recognition/modelo_kanji_3000_completo_150.pth', map_location=device, weights_only=False))
 model.eval()
