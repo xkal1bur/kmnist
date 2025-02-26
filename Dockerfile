@@ -44,4 +44,4 @@ EXPOSE $PORT
 #CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
 #CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:$PORT"]
 #CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:${PORT:-8080}"]
-CMD ["sh", "-c", "echo 'Starting server...' && python manage.py runserver 0.0.0.0:${PORT} && echo 'Server started successfully' "]
+#CMD ["sh", "-c", "echo 'Starting server...' && python manage.py runserver 0.0.0.0:${PORT} && echo 'Server started successfully' "]
