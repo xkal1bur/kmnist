@@ -37,7 +37,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 COPY . /app
 
-RUN python manage.py collectstatic --noinput
+#RUN python manage.py collectstatic --noinput
 
 EXPOSE $PORT
 EXPOSE 8000
