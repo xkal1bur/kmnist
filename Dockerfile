@@ -40,8 +40,9 @@ COPY . /app
 # RUN python manage.py collectstatic --noinput
 
 EXPOSE $PORT
+EXPOSE 8000
 
 #CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
-#CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:$PORT"]
+CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
 #CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:${PORT:-8080}"]
 #CMD ["sh", "-c", "echo 'Starting server...' && python manage.py runserver 0.0.0.0:${PORT} && echo 'Server started successfully' "]
