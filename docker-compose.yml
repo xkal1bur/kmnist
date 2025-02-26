@@ -5,7 +5,7 @@ services:
     build: .
     image: kmnist-app
     ports:
-      - "${PORT:-8000}:${PORT:-8000}"  # Usa la variable PORT o 8000 por defecto
+      - "8000:8000"  # Usa la variable PORT o 8000 por defecto
     environment:
       - DJANGO_SETTINGS_MODULE=kmnist.settings
-      - PORT=${PORT:-8000}  # Asegúrate de pasar la variable PORT
+      - PORT=8000  # Asegúrate de pasar la variable PORT
