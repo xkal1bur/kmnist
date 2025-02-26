@@ -52,4 +52,4 @@ def transform(karray):
     return dict(enumerate(karray3))
 label_map = transform(array_k)
 
-print(label_map)
+#print(label_map)
