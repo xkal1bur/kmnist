@@ -1,2 +1,0 @@
-[service]
-port = 8000  # O usa ${PORT} si estás usando la variable
