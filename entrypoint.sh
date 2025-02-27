@@ -1,18 +1,17 @@
 #!/bin/sh
 set -x
 
-git init
+git init main
 
 echo 'Adding remote repository...'
 git remote add origin https://github.com/xkal1bur/kmnist.git
 git remote -v
+git fetch
 
 git lfs env
 
 echo 'Pulling Git LFS files...'
 git lfs pull
-
-git lfs env
 
 ls -la
 
