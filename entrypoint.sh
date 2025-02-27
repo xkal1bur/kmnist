@@ -6,12 +6,11 @@ git init
 echo 'Adding remote repository...'
 git remote add origin https://github.com/xkal1bur/kmnist.git
 
-echo 'Pulling Git LFS files...'
-git pull origin main --strategy=ours
+echo 'Fetching and forcing checkout...'
+git fetch origin main
+git checkout -f -B main origin/main  # Sobrescribe archivos locales
 
-ls -la recognition/
-
-echo 'Running collecstatic...'
+echo 'Running collectstatic...'
 python manage.py collectstatic --no-input --settings=kmnist.settings
 
 echo 'Running server...'
