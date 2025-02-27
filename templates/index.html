@@ -281,26 +281,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr><td>一</td><td>Uno</td></tr>
-                <tr><td>事</td><td>Cosa / Asunto</td></tr>
-                <tr><td>云</td><td>Nube</td></tr>
-                <tr><td>人</td><td>Persona</td></tr>
-                <tr><td>出</td><td>Salir / Fuera</td></tr>
-                <tr><td>又</td><td>De nuevo / Otra vez</td></tr>
-                <tr><td>見</td><td>Ver / Mirar</td></tr>
-                <tr><td>入</td><td>Entrar / Dentro</td></tr>
-                <tr><td>大</td><td>Grande</td></tr>
-                <tr><td>物</td><td>Objeto / Cosa</td></tr>
-                <tr><td>子</td><td>Niño / Hijo</td></tr>
-                <tr><td>此</td><td>Esto / Este</td></tr>
-                <tr><td>其</td><td>Su / Aquel</td></tr>
-                <tr><td>也</td><td>También</td></tr>
-                <tr><td>日</td><td>Día / Sol</td></tr>
-                <tr><td>小</td><td>Pequeño</td></tr>
-                <tr><td>方</td><td>Dirección / Manera</td></tr>
-                <tr><td>上</td><td>Arriba / Encima</td></tr>
-                <tr><td>是</td><td>Ser / Es</td></tr>
-                <tr><td>三</td><td>Tres</td></tr>
+                {% for kanji, meaning in kanji_data.items %}
+                    <tr>
+                        <td>{{ kanji }}</td>
+                        <td>{{ meaning }}</td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>

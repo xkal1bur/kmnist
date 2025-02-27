@@ -14,9 +14,15 @@ import torchvision.transforms as transforms
 from django.shortcuts import render
 from .models import model, label_map
 import torch
+import json
+import random
 
 def index(request):
-    return render(request, 'index.html')
+    with open("recognition/kanji_data_traducido.json", "r", encoding="utf-8") as f:
+        kanji_data = json.load(f)  # Carga el JSON como diccionario
+    random_kanjis = {k: kanji_data[k] for k in random.sample(list(kanji_data.keys()), 15)}
+
+    return render(request, 'index.html', {"kanji_data": random_kanjis})
 
 
 @csrf_exempt  # Para pruebas. En producción maneja CSRF de forma segura.
