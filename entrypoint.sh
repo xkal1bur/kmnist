@@ -1,18 +1,13 @@
 #!/bin/sh
-set -x
+
 git config --global init.defaultBranch main
 git init
 
 echo 'Adding remote repository...'
 git remote add origin https://github.com/xkal1bur/kmnist.git
-git remote -v
-git fetch
-
-git lfs env
 
 echo 'Pulling Git LFS files...'
-git lfs pull
-git lfs logs last
+git pull origin main --rebase
 
 ls -la recognition/
 
