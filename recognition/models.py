@@ -17,8 +17,8 @@ class Net(nn.Module):
         self.pool3 = nn.MaxPool2d(2, 2)
         self.drop1 = nn.Dropout2d(p=0.25)
         self.drop2 = nn.Dropout(p=0.5)
-        self.fc1 = nn.Linear(4608, 2048)
-        self.fc2 = nn.Linear(2048, 3490)
+        self.fc1 = nn.Linear(4608, 4000)
+        self.fc2 = nn.Linear(4000, 3490)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -41,7 +41,7 @@ class Net(nn.Module):
 
 # Carga del modelo y pesos (se hace una sola vez)
 model = Net()
-model.load_state_dict(torch.load('recognition/modelo_kanji_1500000_completo_40.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('recognition/modelo_kanji_3000_completo_200.pth', map_location=torch.device('cpu')))
 model.eval()
 
 # Diccionario de mapeo de índices a símbolos Kanji
