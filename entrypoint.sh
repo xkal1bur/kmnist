@@ -1,5 +1,8 @@
 #!/bin/sh
 
+git init
+git remote add origin https://github.com/xkal1bur/kmnist.git # Reemplaza con la URL de tu repositorio
+
 echo 'Pulling Git LFS files...'
 git lfs pull
 
