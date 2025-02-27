@@ -12,6 +12,7 @@ git lfs env
 
 echo 'Pulling Git LFS files...'
 git lfs pull
+git lfs logs last
 
 ls -la recognition/
 
