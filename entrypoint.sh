@@ -1,10 +1,20 @@
 #!/bin/sh
+set -x
 
 git init
-git remote add origin https://github.com/xkal1bur/kmnist.git # Reemplaza con la URL de tu repositorio
+
+echo 'Adding remote repository...'
+git remote add origin https://github.com/xkal1bur/kmnist.git
+git remote -v
+
+git lfs env
 
 echo 'Pulling Git LFS files...'
 git lfs pull
+
+git lfs env
+
+ls -la
 
 echo 'Running collecstatic...'
 python manage.py collectstatic --no-input --settings=kmnist.settings
