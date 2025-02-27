@@ -2,165 +2,312 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kanji Recognition</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #4d4d4d;
+            --accent-color: #ff006e;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --success-color: #38b000;
+            --warning-color: #ffbe0b;
+        }
+
         body {
-            background-color: #f8f9fa;
+            background-color: var(--light-bg);
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         .wrapper {
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: flex-start;
-            margin: 20px;
+            margin: 1rem;
+            gap: 1.5rem;
         }
+
         .sidebar {
             width: 300px;
             background: #fff;
-            padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-bottom: 1rem;
             max-height: 80vh;
             overflow-y: auto;
         }
+
         .sidebar h5 {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            font-weight: 600;
         }
+
         .sidebar table td:first-child,
         .sidebar table th:first-child {
-            font-size: 5rem;
+            font-size: 2.5rem;
+            text-align: center;
+            vertical-align: middle;
         }
+
         .sidebar table td:nth-child(2),
         .sidebar table th:nth-child(2) {
-            font-size: 1.25rem; /* Ajusta según convenga */
+            font-size: 1rem;
+            vertical-align: middle;
         }
+
         .main-content {
             flex: 1;
             max-width: 600px;
             background: #ffffff;
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-align: center;
         }
+
+        .main-content h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .main-content p {
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+        }
+
         #drawCanvas, #cameraCanvas {
-            border: 1px solid #ced4da;
+            border: 2px solid #ced4da;
+            border-radius: 4px;
             display: block;
             margin: 0 auto;
             cursor: crosshair;
+            background-color: white;
+            max-width: 100%;
+            height: auto;
         }
+
         .button-group {
-            margin-top: 15px;
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
         }
+
         #result, #batchResult {
-            margin-top: 20px;
-            font-size: 2rem;
-            color: #333;
+            margin-top: 1.5rem;
+            font-size: 1.75rem;
+            color: var(--dark-bg);
+            min-height: 3rem;
         }
+
         #batchContainer {
             display: none;
+            width: 100%;
         }
+
         #batchPreview {
-            max-width: 400px;
-            margin: 10px auto;
+            max-width: 100%;
+            margin: 1rem auto;
             display: block;
             border: 1px solid #ced4da;
+            border-radius: 4px;
         }
+
         .kanji-segmentation {
             display: inline-block;
-            margin: 5px;
+            margin: 0.5rem;
             text-align: center;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+
         .kanji-segmentation img {
             max-width: 100px;
             border: 1px solid #ced4da;
             display: block;
             margin: 0 auto;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2a75e6;
+            border-color: #2a75e6;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-info {
+            background-color: #4cc9f0;
+            border-color: #4cc9f0;
+            color: white;
+        }
+
+        .loading-spinner {
+            display: none;
+            margin: 1rem auto;
+        }
+
+        .error-message {
+            color: var(--accent-color);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-width: 600px;
+                margin-top: 1rem;
+            }
+
+            .main-content {
+                margin-bottom: 1rem;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-group .btn {
+                border-radius: 4px !important;
+                margin-bottom: 0.5rem;
+            }
+
+            #drawCanvas, #cameraCanvas, #video {
+                max-width: 100%;
+                height: auto;
+            }
         }
     </style>
 </head>
 <body>
-<div class="wrapper">
-    <div class="main-content">
-        <h1>Reconocedor de Kanji</h1>
-        <p>¡Dibuja un Kanji o toma una foto y nuestro modelo lo reconocerá!</p>
+<div class="container-fluid p-0">
+    <div class="wrapper">
+        <div class="main-content">
+            <h1>Reconocedor de Kanji</h1>
+            <p>¡Dibuja un Kanji o toma una foto y nuestro modelo lo reconocerá!</p>
 
-        <!-- Selector de Modo -->
-        <div class="btn-group mb-3">
-            <button id="drawModeBtn" class="btn btn-primary">Modo Dibujo</button>
-            <button id="cameraModeBtn" class="btn btn-secondary">Modo Cámara</button>
-            <button id="batchModeBtn" class="btn btn-info">Modo Batch</button>
+            <!-- Selector de Modo -->
+            <div class="btn-group mb-3">
+                <button id="drawModeBtn" class="btn btn-primary">Modo Dibujo</button>
+                <button id="cameraModeBtn" class="btn btn-secondary">Modo Cámara</button>
+                <button id="batchModeBtn" class="btn btn-info">Modo Batch</button>
+            </div>
+
+            <!-- Canvas para el dibujo -->
+            <canvas id="drawCanvas" width="400" height="400" style="display:none;" role="img" aria-label="Área de dibujo de Kanji"></canvas>
+
+            <!-- Contenedor de la Cámara -->
+            <div id="cameraContainer" style="display:none;">
+                <video id="video" width="400" height="400" autoplay playsinline></video>
+                <canvas id="cameraCanvas" width="400" height="400" style="display:none;" role="img" aria-label="Captura de cámara para reconocimiento de Kanji"></canvas>
+                <button id="captureBtn" class="btn btn-success mt-2">
+                    <i class="bi bi-camera"></i> Tomar Foto
+                </button>
+            </div>
+
+            <!-- Contenedor para Batch Mode -->
+            <div id="batchContainer" style="display:none;">
+                <div class="mb-3">
+                    <label for="batchFileInput" class="form-label">Seleccionar imagen</label>
+                    <input type="file" id="batchFileInput" accept="image/*" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label for="nClustersInput" class="form-label">Número de clusters</label>
+                    <input type="number" id="nClustersInput" placeholder="Por defecto: 3" class="form-control" min="1" max="10">
+                </div>
+
+                <img id="batchPreview" src="" alt="Vista previa de la imagen batch">
+                <button id="sendBatchBtn" class="btn btn-primary mt-2">Enviar Batch</button>
+            </div>
+
+            <div class="button-group">
+                <button id="clearBtn" class="btn btn-secondary">Limpiar</button>
+                <button id="predictBtn" class="btn btn-primary">Enviar</button>
+            </div>
+
+            <!-- Spinner de carga -->
+            <div class="spinner-border text-primary loading-spinner" id="loadingSpinner" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+
+            <div id="result" aria-live="polite">Aquí se mostrará el resultado</div>
+            <div id="batchResult" aria-live="polite"></div>
         </div>
 
-        <!-- Canvas para el dibujo -->
-        <canvas id="drawCanvas" width="400" height="400" style="display:none;"></canvas>
-
-        <!-- Contenedor de la Cámara -->
-        <div id="cameraContainer" style="display:none;">
-            <video id="video" width="400" height="400" autoplay></video>
-            <canvas id="cameraCanvas" width="400" height="400" style="display:none;"></canvas>
-            <button id="captureBtn" class="btn btn-success mt-2">Tomar Foto</button>
+        <!-- Sidebar Derecho -->
+        <div class="sidebar right">
+            <h5>Referencia de Kanji</h5>
+            <table class="table table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th style="font-size: 1.25rem">Kanji</th>
+                    <th>Significado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr><td>一</td><td>Uno</td></tr>
+                <tr><td>事</td><td>Cosa / Asunto</td></tr>
+                <tr><td>云</td><td>Nube</td></tr>
+                <tr><td>人</td><td>Persona</td></tr>
+                <tr><td>出</td><td>Salir / Fuera</td></tr>
+                <tr><td>又</td><td>De nuevo / Otra vez</td></tr>
+                <tr><td>見</td><td>Ver / Mirar</td></tr>
+                <tr><td>入</td><td>Entrar / Dentro</td></tr>
+                <tr><td>大</td><td>Grande</td></tr>
+                <tr><td>物</td><td>Objeto / Cosa</td></tr>
+                <tr><td>子</td><td>Niño / Hijo</td></tr>
+                <tr><td>此</td><td>Esto / Este</td></tr>
+                <tr><td>其</td><td>Su / Aquel</td></tr>
+                <tr><td>也</td><td>También</td></tr>
+                <tr><td>日</td><td>Día / Sol</td></tr>
+                <tr><td>小</td><td>Pequeño</td></tr>
+                <tr><td>方</td><td>Dirección / Manera</td></tr>
+                <tr><td>上</td><td>Arriba / Encima</td></tr>
+                <tr><td>是</td><td>Ser / Es</td></tr>
+                <tr><td>三</td><td>Tres</td></tr>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Contenedor para Batch Mode -->
-        <div id="batchContainer" style="display:none;">
-            <input type="file" id="batchFileInput" accept="image/*" class="form-control">
-            <input type="number" id="nClustersInput" placeholder="Número de clusters (por defecto 3)" class="form-control mt-2">
-            <img id="batchPreview" src="" alt="Vista previa de la imagen batch">
-            <button id="sendBatchBtn" class="btn btn-primary mt-2">Enviar Batch</button>
-        </div>
-
-        <div class="button-group">
-            <button id="clearBtn" class="btn btn-secondary mt-2">Limpiar</button>
-            <button id="predictBtn" class="btn btn-primary mt-2">Enviar</button>
-        </div>
-        <div id="result">Aquí se mostrará el resultado</div>
-        <div id="batchResult"></div>
-    </div>
-
-    <!-- Sidebar Derecho -->
-    <div class="sidebar right">
-        <h5>Referencia</h5>
-        <table class="table table-sm table-bordered">
-            <thead>
-            <tr>
-                <th style="font-size: 1.25rem">Kanji</th>
-                <th>Significado</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr><td>一</td><td>Uno</td></tr>
-            <tr><td>事</td><td>Cosa / Asunto</td></tr>
-            <tr><td>云</td><td>Nube</td></tr>
-            <tr><td>人</td><td>Persona</td></tr>
-            <tr><td>出</td><td>Salir / Fuera</td></tr>
-            <tr><td>又</td><td>De nuevo / Otra vez</td></tr>
-            <tr><td>見</td><td>Ver / Mirar</td></tr>
-            <tr><td>入</td><td>Entrar / Dentro</td></tr>
-            <tr><td>大</td><td>Grande</td></tr>
-            <tr><td>物</td><td>Objeto / Cosa</td></tr>
-            <tr><td>子</td><td>Niño / Hijo</td></tr>
-            <tr><td>此</td><td>Esto / Este</td></tr>
-            <tr><td>其</td><td>Su / Aquel</td></tr>
-            <tr><td>也</td><td>También</td></tr>
-            <tr><td>日</td><td>Día / Sol</td></tr>
-            <tr><td>小</td><td>Pequeño</td></tr>
-            <tr><td>方</td><td>Dirección / Manera</td></tr>
-            <tr><td>上</td><td>Arriba / Encima</td></tr>
-            <tr><td>是</td><td>Ser / Es</td></tr>
-            <tr><td>三</td><td>Tres</td></tr>
-            </tbody>
-        </table>
     </div>
 </div>
 
-<!-- Bootstrap JS (opcional) -->
+<!-- Bootstrap JS y dependencias -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Canvas y variables
@@ -169,13 +316,20 @@
     const video = document.getElementById('video');
     const ctx = drawCanvas.getContext('2d');
     const cameraCtx = cameraCanvas.getContext('2d');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultDiv = document.getElementById('result');
+    const batchResultDiv = document.getElementById('batchResult');
+    const predictBtn = document.getElementById('predictBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const sendBatchBtn = document.getElementById('sendBatchBtn');
+
     let currentMode = 'draw';
     let isCaptured = false;
     let drawing = false;
-    const cameraContainer = document.getElementById('cameraContainer');
+    let isProcessing = false;
 
-    const batchResultDiv = document.getElementById('batchResult');
-    const sendBatchBtn = document.getElementById('sendBatchBtn');
+    const cameraContainer = document.getElementById('cameraContainer');
     const batchPreview = document.getElementById('batchPreview');
     const batchFileInput = document.getElementById('batchFileInput');
     const batchContainer = document.getElementById('batchContainer');
@@ -184,9 +338,12 @@
     function initCanvas() {
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
-        cameraCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
+        if (cameraCtx) {
+            cameraCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
+        }
+        resultDiv.textContent = 'Aquí se mostrará el resultado';
+        batchResultDiv.innerHTML = '';
     }
-
 
     function startPosition(e) {
         drawing = true;
@@ -201,23 +358,62 @@
 
     function draw(e) {
         if (!drawing) return;
-        const rect = drawCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+
+        let x, y;
+
+        // Manejar tanto eventos de mouse como eventos táctiles
+        if (e.type === 'mousemove') {
+            const rect = drawCanvas.getBoundingClientRect();
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        } else if (e.type === 'touchmove') {
+            e.preventDefault(); // Prevenir scroll
+            const rect = drawCanvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            x = touch.clientX - rect.left;
+            y = touch.clientY - rect.top;
+        } else {
+            return;
+        }
+
         ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
         ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 30;
         ctx.lineTo(x, y);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(x, y);
     }
 
+    // Eventos para dibujo con mouse
     drawCanvas.addEventListener('mousedown', startPosition);
     drawCanvas.addEventListener('mouseup', finishedPosition);
     drawCanvas.addEventListener('mousemove', draw);
+    drawCanvas.addEventListener('mouseleave', finishedPosition);
 
-    // Botón para limpiar el canvas y rellenarlo de blanco
-    document.getElementById('clearBtn').addEventListener('click', () => {
+    // Eventos para dibujo táctil
+    drawCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const rect = drawCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        drawing = true;
+        ctx.beginPath();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+        ctx.moveTo(x, y);
+    });
+
+    drawCanvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        drawing = false;
+        ctx.beginPath();
+    });
+
+    drawCanvas.addEventListener('touchmove', draw);
+
+    // Botón para limpiar el canvas
+    clearBtn.addEventListener('click', () => {
         initCanvas();
         if (currentMode === 'camera') {
             video.style.display = 'block';
@@ -226,36 +422,95 @@
         }
         if (currentMode === 'batch') {
             batchPreview.src = "";
+            batchFileInput.value = "";
             batchResultDiv.innerHTML = "";
         }
-        document.getElementById('result').textContent = 'Aquí se mostrará el resultado';
+        resultDiv.textContent = 'Aquí se mostrará el resultado';
+        batchResultDiv.innerHTML = "";
     });
 
-    // Asegurar que solo un canvas está activo
+    // Cambiar modos
+    document.getElementById('drawModeBtn').addEventListener('click', () => {
+        if (isProcessing) return;
+
+        currentMode = 'draw';
+        drawCanvas.style.display = 'block';
+        cameraContainer.style.display = 'none';
+        batchContainer.style.display = 'none';
+        predictBtn.style.display = 'inline-block';
+        stopCamera();
+        initCanvas();
+        isCaptured = false;
+
+        // Actualizar estado visual de los botones
+        document.getElementById('drawModeBtn').classList.add('btn-primary');
+        document.getElementById('drawModeBtn').classList.remove('btn-secondary');
+        document.getElementById('cameraModeBtn').classList.add('btn-secondary');
+        document.getElementById('cameraModeBtn').classList.remove('btn-primary');
+        document.getElementById('batchModeBtn').classList.add('btn-info');
+        document.getElementById('batchModeBtn').classList.remove('btn-primary');
+    });
+
     document.getElementById('cameraModeBtn').addEventListener('click', () => {
+        if (isProcessing) return;
+
         currentMode = 'camera';
         drawCanvas.style.display = 'none';
         cameraContainer.style.display = 'block';
         video.style.display = 'block';
         cameraCanvas.style.display = 'none';
+        batchContainer.style.display = 'none';
+        predictBtn.style.display = 'inline-block';
+        startCamera();
         isCaptured = false;
 
-        // Limpiar canvas al cambiar de modo
-        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        initCanvas();
-        startCamera();
+        // Actualizar estado visual de los botones
+        document.getElementById('cameraModeBtn').classList.add('btn-primary');
+        document.getElementById('cameraModeBtn').classList.remove('btn-secondary');
+        document.getElementById('drawModeBtn').classList.add('btn-secondary');
+        document.getElementById('drawModeBtn').classList.remove('btn-primary');
+        document.getElementById('batchModeBtn').classList.add('btn-info');
+        document.getElementById('batchModeBtn').classList.remove('btn-primary');
+    });
+
+    document.getElementById('batchModeBtn').addEventListener('click', () => {
+        if (isProcessing) return;
+
+        currentMode = 'batch';
+        drawCanvas.style.display = 'none';
+        cameraContainer.style.display = 'none';
+        batchContainer.style.display = 'block';
+        predictBtn.style.display = 'none';
+        stopCamera();
+
+        // Actualizar estado visual de los botones
+        document.getElementById('batchModeBtn').classList.add('btn-primary');
+        document.getElementById('batchModeBtn').classList.remove('btn-info');
+        document.getElementById('drawModeBtn').classList.add('btn-secondary');
+        document.getElementById('drawModeBtn').classList.remove('btn-primary');
+        document.getElementById('cameraModeBtn').classList.add('btn-secondary');
+        document.getElementById('cameraModeBtn').classList.remove('btn-primary');
     });
 
     // Cámara
     async function startCamera() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment" }
-            });
+            const constraints = {
+                video: {
+                    facingMode: "environment",
+                    width: { ideal: 400 },
+                    height: { ideal: 400 }
+                }
+            };
+
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = stream;
+
+            // Asegurar que el video se muestra correctamente en iOS
+            video.setAttribute('playsinline', true);
         } catch (err) {
             console.error("Error al acceder a la cámara:", err);
-            alert("No se pudo acceder a la cámara");
+            resultDiv.innerHTML = `<div class="error-message">No se pudo acceder a la cámara</div>`;
         }
     }
 
@@ -286,7 +541,12 @@
     }
 
     // Capturar foto con filtros
-    document.getElementById('captureBtn').addEventListener('click', () => {
+    captureBtn.addEventListener('click', () => {
+        if (!video.srcObject) {
+            resultDiv.innerHTML = '<div class="error-message">Cámara no disponible</div>';
+            return;
+        }
+
         cameraCtx.drawImage(video, 0, 0, 400, 400);
 
         // Aplicar filtros
@@ -299,43 +559,32 @@
         cameraCanvas.style.display = 'block';
     });
 
-    // Cambiar modos
-    document.getElementById('drawModeBtn').addEventListener('click', () => {
-        currentMode = 'draw';
-        drawCanvas.style.display = 'block';
-        cameraContainer.style.display = 'none';
-        batchContainer.style.display = 'none';
-        stopCamera();
-        isCaptured = false;
-    });
-
-    document.getElementById('cameraModeBtn').addEventListener('click', () => {
-        currentMode = 'camera';
-        drawCanvas.style.display = 'none';
-        cameraContainer.style.display = 'block';
-        video.style.display = 'block';
-        cameraCanvas.style.display = 'none';
-        batchContainer.style.display = 'none';
-        startCamera();
-        isCaptured = false;
-    });
-
     // Enviar imagen
-    document.getElementById('predictBtn').addEventListener('click', handlePredictClick);
+    predictBtn.addEventListener('click', handlePredictClick);
     async function handlePredictClick(e) {
-        e.preventDefault(); // Prevenir comportamiento por defecto
-        console.log('Enviando imagen...'); // Depuración
+        e.preventDefault();
+
+        if (isProcessing) return;
+
+        // Verificar si hay imagen para procesar
+        if (currentMode === 'camera' && !isCaptured) {
+            resultDiv.innerHTML = '<div class="error-message">Primero toma una foto</div>';
+            return;
+        }
 
         let dataURL;
         if (currentMode === 'draw') {
             dataURL = drawCanvas.toDataURL('image/png');
         } else {
-            if (!isCaptured) {
-                alert('Primero toma una foto!');
-                return;
-            }
             dataURL = cameraCanvas.toDataURL('image/png');
         }
+
+        // Iniciar procesamiento
+        isProcessing = true;
+        predictBtn.disabled = true;
+        clearBtn.disabled = true;
+        loadingSpinner.style.display = 'block';
+        resultDiv.textContent = 'Procesando...';
 
         try {
             const response = await fetch('/predict/', {
@@ -345,45 +594,75 @@
                 },
                 body: new URLSearchParams({ 'image': dataURL })
             });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+
             const data = await response.json();
-            document.getElementById('result').textContent = 'Predicción: ' + data.prediction;
+            resultDiv.textContent = 'Predicción: ' + data.prediction;
         } catch (error) {
             console.error('Error:', error);
-            document.getElementById('result').textContent = 'Error en la predicción.';
+            resultDiv.innerHTML = `<div class="error-message">Error en la predicción: ${error.message}</div>`;
+        } finally {
+            // Finalizar procesamiento
+            isProcessing = false;
+            predictBtn.disabled = false;
+            clearBtn.disabled = false;
+            loadingSpinner.style.display = 'none';
         }
     }
-    // Modo Batch
-    document.getElementById('batchModeBtn').addEventListener('click', () => {
-        currentMode = 'batch';
-        drawCanvas.style.display = 'none';
-        document.getElementById('cameraContainer').style.display = 'none';
-        batchContainer.style.display = 'block';
-        predictBtn.style.display = 'none';
-        stopCamera();
-    });
+
     // Previsualizar imagen en modo Batch
     batchFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Validar que sea una imagen
+        if (!file.type.startsWith('image/')) {
+            batchResultDiv.innerHTML = '<div class="error-message">Por favor, seleccione un archivo de imagen</div>';
+            batchFileInput.value = "";
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = function(evt) {
             batchPreview.src = evt.target.result;
+            batchResultDiv.innerHTML = '';
         };
         reader.readAsDataURL(file);
     });
 
     // Enviar imagen en modo Batch
     sendBatchBtn.addEventListener('click', async () => {
+        if (isProcessing) return;
+
         if (!batchPreview.src) {
-            alert("Primero seleccione una imagen.");
+            batchResultDiv.innerHTML = '<div class="error-message">Primero seleccione una imagen</div>';
             return;
         }
+
         const nClusters = document.getElementById("nClustersInput").value;
+
+        // Validar número de clusters
+        if (nClusters && (isNaN(nClusters) || nClusters < 1 || nClusters > 10)) {
+            batchResultDiv.innerHTML = '<div class="error-message">El número de clusters debe estar entre 1 y 10</div>';
+            return;
+        }
+
+        // Iniciar procesamiento
+        isProcessing = true;
+        sendBatchBtn.disabled = true;
+        clearBtn.disabled = true;
+        loadingSpinner.style.display = 'block';
+        batchResultDiv.innerHTML = '<p>Procesando imagen...</p>';
+
         try {
             const params = new URLSearchParams({ 'image': batchPreview.src });
             if (nClusters) {
                 params.append('n_clusters', nClusters);
             }
+
             const response = await fetch('/predict_batch/', {
                 method: 'POST',
                 headers: {
@@ -391,20 +670,38 @@
                 },
                 body: params
             });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+
             const data = await response.json();
-            console.log(data)
-            // Mostrar resultados: por ejemplo, una lista de los kanjis reconocidos
+
+            // Mostrar resultados
             let html = '<h4>Predicciones Batch:</h4><div class="d-flex flex-wrap justify-content-center">';
-            data.predictions.forEach(pred => {
-                html += `<div class="kanji-segmentation m-2">
-                            <div style="font-size:2rem;">${pred.prediction}</div>
-                         </div>`;
-            });
+
+            if (data.predictions && data.predictions.length > 0) {
+                data.predictions.forEach((pred, index) => {
+                    html += `<div class="kanji-segmentation m-2">
+                                <div style="font-size:2rem;">${pred.prediction}</div>
+                                <div class="small text-muted">Cluster ${index + 1}</div>
+                             </div>`;
+                });
+            } else {
+                html += '<p>No se detectaron caracteres en la imagen</p>';
+            }
+
             html += '</div>';
             batchResultDiv.innerHTML = html;
         } catch (error) {
             console.error('Error:', error);
-            batchResultDiv.textContent = 'Error en la predicción batch.';
+            batchResultDiv.innerHTML = `<div class="error-message">Error en la predicción batch: ${error.message}</div>`;
+        } finally {
+            // Finalizar procesamiento
+            isProcessing = false;
+            sendBatchBtn.disabled = false;
+            clearBtn.disabled = false;
+            loadingSpinner.style.display = 'none';
         }
     });
 
@@ -415,6 +712,18 @@
         // Iniciar en modo dibujo
         document.getElementById('drawModeBtn').click();
     };
+
+    // Detectar si la conexión está offline
+    window.addEventListener('offline', () => {
+        resultDiv.innerHTML = '<div class="error-message">Sin conexión a Internet. Algunas funciones pueden no estar disponibles.</div>';
+    });
+
+    window.addEventListener('online', () => {
+        resultDiv.textContent = 'Conexión restablecida';
+        setTimeout(() => {
+            resultDiv.textContent = 'Aquí se mostrará el resultado';
+        }, 2000);
+    });
 </script>
 </body>
 </html>
