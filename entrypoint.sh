@@ -7,7 +7,7 @@ echo 'Adding remote repository...'
 git remote add origin https://github.com/xkal1bur/kmnist.git
 
 echo 'Pulling Git LFS files...'
-git pull origin main --rebase
+git pull origin main --strategy=ours
 
 ls -la recognition/
 
