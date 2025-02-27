@@ -1,7 +1,7 @@
 #!/bin/sh
 set -x
-
-git init main
+git config --global init.defaultBranch main
+git init
 
 echo 'Adding remote repository...'
 git remote add origin https://github.com/xkal1bur/kmnist.git
@@ -13,7 +13,7 @@ git lfs env
 echo 'Pulling Git LFS files...'
 git lfs pull
 
-ls -la
+ls -la recognition/
 
 echo 'Running collecstatic...'
 python manage.py collectstatic --no-input --settings=kmnist.settings
