@@ -23,8 +23,10 @@ FROM python:${PYTHON_VERSION}
 
 # Instalar dependencias en etapa final (aquí es donde se ejecuta la app)
 RUN apt-get update && \
-    apt-get install -y libglib2.0-0 libgl1-mesa-glx && \
+    apt-get install -y git git-lfs libglib2.0-0 libgl1-mesa-glx && \
     rm -rf /var/lib/apt/lists/*
+
+RUN git lfs install
 
 ENV PATH=/opt/venv/bin:$PATH
 COPY --from=builder /opt/venv /opt/venv
@@ -37,14 +39,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 COPY . /app
 
-#RUN python manage.py collectstatic --noinput
 
 EXPOSE $PORT
 EXPOSE 8000
 
-#CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
-#CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
-#CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:${PORT:-8080}"]
-#CMD ["sh", "-c", "echo 'Starting server...' && python manage.py runserver 0.0.0.0:${PORT} && echo 'Server started successfully' "]
-#CMD ["gunicorn", "${PROJ_NAME}.wsgi", "--bind", "0.0.0.0:${PORT}"]
 CMD ["sh", "entrypoint.sh"]
