@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo 'Pulling Git LFS files...'
+git lfs pull
 
 echo 'Running collecstatic...'
 python manage.py collectstatic --no-input --settings=kmnist.settings

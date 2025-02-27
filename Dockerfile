@@ -27,7 +27,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN git lfs install
-RUN git lfs pull
 
 ENV PATH=/opt/venv/bin:$PATH
 COPY --from=builder /opt/venv /opt/venv
